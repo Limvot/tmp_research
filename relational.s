@@ -68,19 +68,20 @@ createDemoRelationalTable:
  .global
 PROJECT:
             addi %r3, %r15, #0                      /* r3 = old table on stack*/
-            subi %r15, %r15, (__WORD*3);               /* Push 3 words onto stack for table struct*/
+            subi %r15, %r15, (__WORD*3);            /* Push 3 words onto stack for table struct*/
             addi %r4, %r15, #0                      /* r4 = new table on stack*/
 
-            subi %r15, %r15, (__WORD*1);               /* Push 1 word onto the stack for the return address*/
+            subi %r15, %r15, (__WORD*1);            /* Push 1 word onto the stack for the return address*/
             st %r5, %r15, #0                        /* push r5 onto stack*/
 
-            ld %r6, %r3, (1*__WORD);                   /* oldTable.rows */
-            st %r6, %r4, (1*__WORD);                   /* newTable.rows = oldTable.rows*/
-            st %r0, %r4, (2*__WORD);                   /* newTable.columns = arrSize*/
+            ld %r6, %r3, (1*__WORD);                /* oldTable.rows */
+            st %r6, %r4, (1*__WORD);                /* newTable.rows = oldTable.rows*/
+            st %r0, %r4, (2*__WORD);                /* newTable.columns = arrSize*/
+            addi %r10, %r0, #0                      /* save newTable.columns for j loop later */
             
 
-            ldi %r9, saveReg                   /* save and load (should really do with saved registers and save at beginning*/
-            st %r0, %r9, (0*__WORD);                         /* and end, but later...*/
+            ldi %r9, saveReg                          /* save and load (should really do with saved registers and save at beginning*/
+            st %r0, %r9, (0*__WORD);                  /* and end, but later...*/
             st %r1, %r9, (1*__WORD);
             st %r2, %r9, (2*__WORD);
             st %r3, %r9, (3*__WORD);
@@ -88,7 +89,7 @@ PROJECT:
             st %r6, %r9, (6*__WORD);
             st %r7, %r9, (7*__WORD);
 
-            mul %r0, %r6, __WORD                    /* newTable.rows * newTable.columns*/
+            mul %r0, %r6, %r0                       /* newTable.rows * newTable.columns*/
             muli %r0, %r0, __WORD                   /* newTable.rows * newTable.columns * __WORD*/
             jali %r5, malloc                        /* malloc(newTable.rows * newTable.columns * sizeof(void*))*/
             addi %r5, %r0, #0                       /* r5 = malloc(newTable.rows * newTable.columns * sizeof(void*))*/
@@ -102,38 +103,43 @@ PROJECT:
             ld %r6, %r9, (6*__WORD);
             ld %r7, %r9, (7*__WORD);
 
-            st %r5, %r4, (0*__WORD);                   /* newTable.data = malloc(newTable.rows * newTable.columns * sizeof(void*));*/
+            st %r5, %r4, (0*__WORD);                /* newTable.data = malloc(newTable.rows * newTable.columns * sizeof(void*));*/
+            addi %r11, %r5, #0                      /* save for loop below */
+
+            addi %r12, %r0, #0                      /* ditto */
 
 
             ldi %r7, #0                             /* int i = 0*/
-loop_i2:     ldi %r8, #0                             /* int j = 0*/
+loop_i2:    ldi %r8, #0                             /* int j = 0*/
 
-loop_j2:     mul %r0, %r1, %r4                       /* i * table.columns*/
-            addi %r0, %r0, %r2                      /* i * table.columns + j*/
-            addi %r0, %r0, %r6                      /* table.data + i * table.columns + j*/
-            ld %r0, %r0, #0                         /* *(table.data + i * table.columns + j)*/
+loop_j2:    mul %r0, %r12, %r7                       /* i * newtable.columns*/
+            add %r0, %r0, %r8                       /* i * newtable.columns + j*/
+            muli %r0, %r0, __WORD                   /* ptr arithmatic */
+            add %r0, %r0, %r11                       /* newtable.data + i * table.columns + j*/
+
 
             ldi %r9, saveReg                        /* save and load (should really do with saved registers and save at beginning*/
-            st %r0, %r9, (0*__WORD);                         /* and end, but later...*/
+            st %r0, %r9, (0*__WORD);                /* and end, but later...*/
             st %r1, %r9, (1*__WORD);
             st %r2, %r9, (2*__WORD);
             st %r3, %r9, (3*__WORD);
             st %r4, %r9, (4*__WORD);
-            st %r5, %r9, (5*__WORD);
             st %r6, %r9, (6*__WORD);
             st %r7, %r9, (7*__WORD);
             st %r8, %r9, (8*__WORD);
 
-            ld %r6, %r3, (2*__WORD);                   /* r6 = oldtable.columns*/
+            ld %r6, %r3, (2*__WORD);                /* r6 = oldtable.columns*/
             mul %r5, %r7, %r6                       /* i * oldtable.columns*/
-            add %r6, %r1, %r8                       /* r6 = columnstoselect+j*/
+            muli %r6, %r8, __WORD                   /* ptr arith */
+            add %r6, %r1, %r6                       /* r6 = columnstoselect+j*/
             ld %r6, %r6, #0                         /* r6 = *(columnstoselect+j)*/
             add %r5, %r5, %r6                       /* r5 = i * oldtable.columns + *(columnstoselect+j)*/
-            ld %r6, %r3, (0*__WORD);                   /* r6 = oldtable.data*/
+            muli %r5, %r5, __WORD                   /* ptr arith */
+            ld %r6, %r3, (0*__WORD);                /* r6 = oldtable.data*/
             add %r6, %r6, %r5                       /* r5 = oldtable.data + i * oldtable.columns + *(columnstoselect+j)*/
-            ld %r5, %r6, #0                         /* r5 = *(oldtable.data + i * oldtable.columns + *(columnstoselect+j))*/
-            addi %r0, %r5, #0                       /* r0 = r5 (for the function call)*/
+            ld %r0, %r6, #0                         /* r5 = *(oldtable.data + i * oldtable.columns + *(columnstoselect+j))*/
             jalr %r5, %r2                           /* copyFunc(*(oldtable.data + i * oldtable.columns + *(columnstoselect+j)))*/
+            addi %r5, %r0, #0                       /* r5 = copyFunc(...) */
 
 
             ldi %r9, saveReg                        /* save and load (should really do with saved registers and save at beginning*/
@@ -142,20 +148,21 @@ loop_j2:     mul %r0, %r1, %r4                       /* i * table.columns*/
             ld %r2, %r9, (2*__WORD);
             ld %r3, %r9, (3*__WORD);
             ld %r4, %r9, (4*__WORD);
-            ld %r5, %r9, (5*__WORD);
             ld %r6, %r9, (6*__WORD);
             ld %r7, %r9, (7*__WORD);
             ld %r8, %r9, (8*__WORD);
-
-
+            
+            st %r5, %r0, #0                         /* newTable.data[i*newTable.columns + j] = copyFunc(table.data[i * table.columns + columnsToSelect[j]]); */
             addi %r8, %r8, #1                       /* j++*/
-            sub %r5, %r8, %r4                       /* j - table.columns*/
-            rtop @p0, %r5                            /* j - table.columns != 0*/
-    @p0 ?   jmpi loop_j2                             /* j < table.columns => continue for loop*/
+            sub %r5, %r8, %r10                      /* j - newtable.columns*/
+            rtop @p0, %r5                           /* j - newtable.columns != 0*/
+    @p0 ?   jmpi loop_j2                            /* j < newtable.columns => continue for loop*/
+
+
             addi %r7, %r7, #1                       /* i++*/
-            sub %r5, %r7, %r3                       /* i - table.rows*/
-            rtop @p0, %r5                            /* i - table.rows != 0*/
-    @p0 ?   jmpi loop_i2                             /* i < table.rows => continue for loop*/
+            sub %r5, %r7, %r6                       /* i - newtable.rows*/
+            rtop @p0, %r5                           /* i - newtable.rows != 0*/
+    @p0 ?   jmpi loop_i2                            /* i < newtable.rows => continue for loop*/
 
 
             ld %r5, %r15, #0                        /* pop r5 from stack*/

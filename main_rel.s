@@ -42,7 +42,7 @@
 
             ldi %r0, printFunc                      /* second argument, the printFunc, passed as r0*/
             jali %r5, printTable                    /* Table returned on stack sent to printTable as first argument*/
-halt
+
             /* Calling PROJECT(table, numSelectColumns, selectColumns, copyFunc))*/
             /* table is passed on the stack, which is in r13*/
             addi %r15, %r13, #0                     /* Put the stack back to the first table*/
@@ -78,6 +78,7 @@ selectFunc:     ld %r0, %r0, #0                     /* r0 = *a*/
 copyFunc:       subi %r15, %r15, (__WORD*2);        /* Push 2 onto stack*/
                 st %r0, %r15, (0*__WORD);           /* Save our argument*/
                 st %r5, %r15, (1*__WORD);           /* Save our return address*/
+
 
 
                 ldi %r0, __WORD                     /* We want to malloc 1 word*/
