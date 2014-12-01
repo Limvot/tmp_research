@@ -78,11 +78,11 @@ selectFunc:     ld %r0, %r0, #0                     /* r0 = *a*/
 copyFunc:       subi %r15, %r15, (__WORD*2);        /* Push 2 onto stack*/
                 st %r0, %r15, (0*__WORD);           /* Save our argument*/
                 st %r5, %r15, (1*__WORD);           /* Save our return address*/
+
+
                 ldi %r0, __WORD                     /* We want to malloc 1 word*/
-                
                 jali %r5, malloc                    /* malloc(sizeof(int)) */
 
-                halt
                 ld %r1, %r15, (0*__WORD);           /* Restore our argument to r1*/
                 ld %r5, %r15, (1*__WORD);           /* Restore our return address*/
                 addi %r15, %r15, (__WORD*2);        /* Pop 2 off stack*/
@@ -100,21 +100,16 @@ printFunc:
                 addi %r15, %r15, __WORD             /* pop r5 from stack*/
                 jmpr %r5                            /* return*/
 
-/* void* malloc(int num)*/
-malloc:         ldi %r1, heap_cnt                   /* r1 = &heap_cnt*/
-                ld %r2, %r1, #0                     /* r2 = heap_cnt*/
-                addi %r3, %r2, heap                 /* r3 = heap + heap_cnt */
-                add %r2, %r2, %r0                   /* r2 = heap_cnt + size*/
-                st %r2, %r1, #0                     /* heap_cnt = heap_cnt + size */
-                addi %r0, %r3, #0                   /* return = heap + heap_cnt */
+
+bug:
                 jmpr %r5                            /* actually return*/
+
+
 
  .perm rw
  .space 100
  stack: .word 0x0                          /* stack goes negative */
  /*stack:         .word 0xface*/
- heap_cnt:        .word 0x0
- heap: .space 1000
  demo_string:   .string "Demo table:  \n"
 projectColumns: .word 0x1
                 .word 0x3
