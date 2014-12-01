@@ -27,7 +27,6 @@
             ldi %r0, printFunc                      /* second argument, the printFunc, passed as r0*/
             jali %r5, printTable                    /* Table returned on stack sent to printTable as first argument*/
 
-            halt
 
             /* Calling SELECT(table, column1, column2, selectFunc, copyFunc)*/
             /* table is passed on the stack, which is where it is right now anyway*/
@@ -43,7 +42,7 @@
 
             ldi %r0, printFunc                      /* second argument, the printFunc, passed as r0*/
             jali %r5, printTable                    /* Table returned on stack sent to printTable as first argument*/
-
+halt
             /* Calling PROJECT(table, numSelectColumns, selectColumns, copyFunc))*/
             /* table is passed on the stack, which is in r13*/
             addi %r15, %r13, #0                     /* Put the stack back to the first table*/
@@ -76,14 +75,17 @@ selectFunc:     ld %r0, %r0, #0                     /* r0 = *a*/
 
 
 /* Function that copies the data at the pointer*/
-copyFunc:       subi %r15, %r15, (__WORD*2);           /* Push 2 onto stack*/
-                st %r0, %r15, #0                    /* Save our argument*/
-                st %r5, %r15, #1                    /* Save our return address*/
+copyFunc:       subi %r15, %r15, (__WORD*2);        /* Push 2 onto stack*/
+                st %r0, %r15, (0*__WORD);           /* Save our argument*/
+                st %r5, %r15, (1*__WORD);           /* Save our return address*/
                 ldi %r0, __WORD                     /* We want to malloc 1 word*/
+                
+                jali %r5, malloc                    /* malloc(sizeof(int)) */
 
-                ld %r1, %r15, #0                    /* Restore our argument to r1*/
-                ld %r5, %r15, #1                    /* Restore our return address*/
-                addi %r15, %r15, (__WORD*2);           /* Pop 2 off stack*/
+                halt
+                ld %r1, %r15, (0*__WORD);           /* Restore our argument to r1*/
+                ld %r5, %r15, (1*__WORD);           /* Restore our return address*/
+                addi %r15, %r15, (__WORD*2);        /* Pop 2 off stack*/
 
                 ld %r1, %r1, #0                     /* Load the data through r1*/
                 st %r1, %r0, #0                     /* Store it to our newly allocated memory*/
@@ -101,9 +103,10 @@ printFunc:
 /* void* malloc(int num)*/
 malloc:         ldi %r1, heap_cnt                   /* r1 = &heap_cnt*/
                 ld %r2, %r1, #0                     /* r2 = heap_cnt*/
-                addi %r0, %r2, heap                 /* return = heap + heap_cnt */
+                addi %r3, %r2, heap                 /* r3 = heap + heap_cnt */
                 add %r2, %r2, %r0                   /* r2 = heap_cnt + size*/
                 st %r2, %r1, #0                     /* heap_cnt = heap_cnt + size */
+                addi %r0, %r3, #0                   /* return = heap + heap_cnt */
                 jmpr %r5                            /* actually return*/
 
  .perm rw
