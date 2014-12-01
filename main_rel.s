@@ -11,12 +11,16 @@
  .global
  entry:     ldi %r15, stack;
 
+            ldi %r7, __WORD                     /* *(int*)toPrint*/
+            jali %r5, printdec
+
             ldi %r7, demo_string                    /* get the string*/
             jali %r5, puts                          /* Print out what we're doing*/
 
             jali %r5, createDemoRelationalTable     /* Table returned on stack*/
             addi %r13, %r15, #0                     /* Copy the address of the demo table into r13*/
-                                                    /* so we can get back to it after the first select*/
+
+
             ldi %r7, demo_string                    /* get the string*/
             jali %r5, puts                          /* Print out what we're doing*/
 
@@ -86,13 +90,13 @@ copyFunc:       subi %r15, %r15, (__WORD*2);           /* Push 2 onto stack*/
                 jmpr %r5                            /* return*/
 /*void printFunc(void* toPrint) {*/
 printFunc:      
-                subi %r15, %r15, (__WORD*1);               /* Push 1 word onto the stack for the return address*/
-                st %r5, %r15, #0                        /* push r5 onto stack*/
-                ld %r6, %r0, #0                     /* *(int*)toPrint*/
+                subi %r15, %r15, (__WORD*1);        /* Push 1 word onto the stack for the return address*/
+                st %r5, %r15, #0                    /* push r5 onto stack*/
+                ld %r7, %r0, #0                     /* *(int*)toPrint*/
                 jali %r5, printdec
-                ld %r5, %r15, #0                        /* pop r5 from stack*/
-                addi %r15, %r15, __WORD                 /* pop r5 from stack*/
-                jmpr %r5                                /* return*/
+                ld %r5, %r15, #0                    /* pop r5 from stack*/
+                addi %r15, %r15, __WORD             /* pop r5 from stack*/
+                jmpr %r5                            /* return*/
 
 /* void* malloc(int num)*/
 malloc:         ldi %r1, heap_cnt                   /* r1 = &heap_cnt*/
