@@ -29,8 +29,19 @@ HARPDIS = $(HARP_MAIN) -D
 
 asm: main_rel.bin main_rel.4b.bin 
 
+second: main_rel.second.bin
+	$(HARPEM) -c main_rel.second.bin
+	#echo split
+
+split:  split_test.no.bin 
+	$(HARPEM) -c split_test.no.bin
+
+
 go: main_rel.bin
 	$(HARPEM) -c main_rel.bin
+
+mul: main_rel.mul.bin
+	$(HARPEM) -c main_rel.mul.bin
 
 run_asm: main_rel.out main_rel.4b.out 
 
@@ -44,6 +55,15 @@ disas: main_rel.d main_rel.4b.d
 
 %.4b.bin : boot.4b.HOF lib.4b.HOF relational.4b.HOF %.4b.HOF
 	$(HARPLD) --arch $(4BARCH) -o $@ $^
+
+%.mul.bin : boot.HOF lib.HOF relational_mul.HOF %.HOF
+	$(HARPLD) -o $@ $^
+
+%.second.bin : boot.HOF lib.HOF more_testing.HOF %.HOF
+	$(HARPLD) -o $@ $^
+
+%.no.bin : boot.HOF lib.HOF %.HOF
+	$(HARPLD) -o $@ $^
 
 %.bin : boot.HOF lib.HOF relational.HOF %.HOF
 	$(HARPLD) -o $@ $^

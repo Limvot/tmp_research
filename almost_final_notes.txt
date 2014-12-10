@@ -1,0 +1,7 @@
+Notes:
+    Email and then see Chad about split/join anytime after tomorrow at 5
+    Afterwards, get some stats like bytes per cycle (dynamic instruction
+    count?)
+    Get code/etc in repo
+
+    Demo? to Haysoon sometime next week

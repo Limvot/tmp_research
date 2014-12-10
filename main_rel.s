@@ -50,7 +50,7 @@
             ldi %r0, #3                             /* 0 - number of columns*/
             ldi %r1, projectColumns                 /* 1 - array of columns*/
             ldi %r2, copyFunc                       /* copyFunc*/
-            jali %r5, PROJECT                        /* Call SELECT*/
+            jali %r5, PROJECT                        /* Call PROJECT*/
 
             ldi %r7, demo_string                    /* get the string*/
             jali %r5, puts                          /* Print out what we're doing*/
@@ -75,7 +75,12 @@ selectFunc:     ld %r0, %r0, #0                     /* r0 = *a*/
 
 
 /* Function that copies the data at the pointer*/
-copyFunc:       subi %r15, %r15, (__WORD*2);        /* Push 2 onto stack*/
+copyFunc:       jmpr %r5                            /* do no actual copying so we don't have to deal with multi-threaded malloc */
+                                                    /* I wish it was better. Sigh. */
+
+
+
+                subi %r15, %r15, (__WORD*2);        /* Push 2 onto stack*/
                 st %r0, %r15, (0*__WORD);           /* Save our argument*/
                 st %r5, %r15, (1*__WORD);           /* Save our return address*/
 
@@ -108,7 +113,7 @@ bug:
 
 
  .perm rw
- .space 100
+ .space 1000
  stack: .word 0x0                          /* stack goes negative */
  /*stack:         .word 0xface*/
  demo_string:   .string "Demo table:  \n"
