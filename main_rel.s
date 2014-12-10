@@ -113,8 +113,9 @@ bug:
 
 
  .perm rw
- .space 1000
+ .space 10000
  stack: .word 0x0                          /* stack goes negative */
+ .space 10000
  /*stack:         .word 0xface*/
  demo_string:   .string "Demo table:  \n"
 projectColumns: .word 0x1

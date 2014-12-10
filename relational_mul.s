@@ -115,7 +115,7 @@ PROJECT:
 
             ldi %r7, #0                             /* int i = 0*/
 /* WE GOING SIMD */
-            ldi %r14, #2                            /* num lanes */
+            ldi %r14, #1                            /* num lanes */
             addi %r13, %r14, #0                     /* 0-index lane indicator */
 simd_loop:  
             subi %r13, %r13, #1                     /* decrement */
@@ -142,7 +142,7 @@ loop_j2:
 
 
             addi %r9, %r13, #1
-            muli %r9, %r9, (9*__WORD);             /* stack offset based on current lane
+            muli %r9, %r9, (9*__WORD);             /* stack offset based on current lane*/
             sub %r15, %r15, %r9                     /* save and load (should really do with saved registers and save at beginning*/
             st %r0, %r15, (0*__WORD);                /* and end, but later...*/
             st %r1, %r15, (1*__WORD);
@@ -177,7 +177,7 @@ loop_j2:
             ld %r8, %r15, (8*__WORD);
 
             addi %r9, %r13, #1
-            muli %r9, %r9, (9*__WORD);             /* stack offset based on current lane
+            muli %r9, %r9, (9*__WORD);             /* stack offset based on current lane*/
             add %r15, %r15, %r9                     /* revert stack to previous position */
             
             st %r5, %r0, #0                         /* newTable.data[i*newTable.columns + j] = copyFunc(table.data[i * table.columns + columnsToSelect[j]]); */
@@ -185,7 +185,6 @@ loop_j2:
             jmpi loop_j2                            /* back to check block */
 after_j:
             join
-            
 
             addi %r7, %r7, #1                       /* i++ */
             sub %r5, %r7, %r6                       /* i - newtable.rows*/
